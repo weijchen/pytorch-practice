@@ -318,7 +318,7 @@ print(device)
 
 print("> Building the network...")
 net = Net()
-net.cuda()
+net.to(device)
 
 # model = Model(input_size, output_size)
 # if torch.cuda.device_count() > 1:
@@ -338,8 +338,8 @@ for epoch in range(2):
   for i, data in enumerate(trainloader, 0):
     # get the inputs
     inputs, labels = data
-    inputs = inputs.cuda()
-    # inputs, labels = inputs.to(device), labels.to(device)
+    # inputs = inputs.to(device)
+    inputs, labels = inputs.to(device), labels.to(device)
 
     # zero the parameter gradients
     optimizer.zero_grad()
@@ -379,7 +379,9 @@ total = 0
 with torch.no_grad():
     for data in testloader:
         inputs, labels = data
-        inputs = inputs.cuda()
+        inputs, labels = inputs.to(device), labels.to(device)
+
+        # inputs = inputs.cuda()
 
         outputs = net(inputs)
         _, predicted = torch.max(outputs.data, 1)
@@ -394,8 +396,10 @@ class_total = list(0. for i in range(10))
 with torch.no_grad():
     for data in testloader:
         inputs, labels = data
-        inputs = inputs.cuda()
+        inputs, labels = inputs.to(device), labels.to(device)
         
+        # inputs = inputs.cuda()
+
         outputs = net(inputs)
         _, predicted = torch.max(outputs, 1)
         c = (predicted == labels).squeeze()
