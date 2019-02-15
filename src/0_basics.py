@@ -361,13 +361,13 @@ model.eval()
 with torch.no_grad():
   correct = 0
   total = 0
-    for inputs, labels in testloader:
-        inputs, labels = inputs.to(device), labels.to(device)
+  for inputs, labels in testloader:
+    inputs, labels = inputs.to(device), labels.to(device)
 
-        outputs = model(inputs)
-        _, predicted = torch.max(outputs.data, 1)
-        total += labels.size(0)
-        correct += (predicted == labels).sum().item()
+    outputs = model(inputs)
+    _, predicted = torch.max(outputs.data, 1)
+    total += labels.size(0)
+    correct += (predicted == labels).sum().item()
 
   print('Accuracy of the network on the 10000 test images: %d %%' % (100 * correct / total))
 print('> Finish Testing')
