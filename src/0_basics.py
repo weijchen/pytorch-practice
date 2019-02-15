@@ -235,93 +235,8 @@ class Net(nn.Module):
     x = self.fc3(x)
     return x
 
-# print("> Building the network...")
-# net = Net()
-
-# criterion = nn.CrossEntropyLoss()
-# optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-
-# print("> Training the network...")
-# # ----- train the network -----
-# for epoch in range(2):
-#   running_loss = 0.0
-#   for i, data in enumerate(trainloader, 0):
-#     # get the inputs
-#     inputs, labels = data
-
-#     # zero the parameter gradients
-#     optimizer.zero_grad()
-
-#     # forward + backward + optimize
-#     outputs = net(inputs)
-#     loss = criterion(outputs, labels)
-#     loss.backward()
-#     optimizer.step()
-
-#     # print statistics
-#     running_loss += loss.item()
-#     if i % 2000 == 1999:  # print every 2000 mini-batches
-#       print('[%d %5d] loss: %.3f' %
-#             (epoch + 1, i + 1, running_loss / 2000))
-#       running_loss = 0.0
-
-# print('Finish Training')
-
-# # ----- testing the network -----
-# print("> Testing the network...")
-# dataiter = iter(testloader)
-# images, labels = dataiter.next()
-
-# # print images
-# # imshow(torchvision.utils.make_grid(images))
-# print('GroundTruth: ', ' '.join('%5s' % classes[labels[j]] for j in range(4)))
-
-# outputs = net(images)
-
-# _, predicted = torch.max(outputs, 1)
-# print('Predicted: ', ' '.join('%5s' % classes[predicted[j]]
-#                               for j in range(4)))
-
-# correct = 0
-# total = 0
-# with torch.no_grad():
-#     for data in testloader:
-#         images, labels = data
-#         outputs = net(images)
-#         _, predicted = torch.max(outputs.data, 1)
-#         total += labels.size(0)
-#         correct += (predicted == labels).sum().item()
-
-# print('Accuracy of the network on the 10000 test images: %d %%' % (
-#     100 * correct / total))
-
-# class_correct = list(0. for i in range(10))
-# class_total = list(0. for i in range(10))
-# with torch.no_grad():
-#     for data in testloader:
-#         images, labels = data
-#         outputs = net(images)
-#         _, predicted = torch.max(outputs, 1)
-#         c = (predicted == labels).squeeze()
-#         for i in range(4):
-#             label = labels[i]
-#             class_correct[label] += c[i].item()
-#             class_total[label] += 1
-
-# for i in range(10):
-#     print('Accuracy of %5s : %2d %%' % (
-#         classes[i], 100 * class_correct[i] / class_total[i]))
-
-# ===== Training on GPU =====
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-# Assuming that we are on a CUDA machine, this should print a CUDA device:
-
-print(device)
-
 print("> Building the network...")
 net = Net()
-net.to(device)
 
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
@@ -333,7 +248,6 @@ for epoch in range(2):
   for i, data in enumerate(trainloader, 0):
     # get the inputs
     inputs, labels = data
-    inputs, labels = inputs.to(device), labels.to(device)
 
     # zero the parameter gradients
     optimizer.zero_grad()
@@ -397,6 +311,100 @@ with torch.no_grad():
 for i in range(10):
     print('Accuracy of %5s : %2d %%' % (
         classes[i], 100 * class_correct[i] / class_total[i]))
+
+# # ===== Training on GPU =====
+# device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+# # Assuming that we are on a CUDA machine, this should print a CUDA device:
+
+# print(device)
+
+# print("> Building the network...")
+# net = Net()
+# net.to(device)
+
+# model = Model(input_size, output_size)
+# if torch.cuda.device_count() > 1:
+#   print("Let's use", torch.cuda.device_count(), "GPUs!")
+#   # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
+#   model = nn.DataParallel(model)
+
+# model.to(device)
+
+# criterion = nn.CrossEntropyLoss()
+# optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+
+# print("> Training the network...")
+# # ----- train the network -----
+# for epoch in range(2):
+#   running_loss = 0.0
+#   for i, data in enumerate(trainloader, 0):
+#     # get the inputs
+#     inputs, labels = data
+#     inputs, labels = inputs.to(device), labels.to(device)
+
+#     # zero the parameter gradients
+#     optimizer.zero_grad()
+
+#     # forward + backward + optimize
+#     outputs = net(inputs)
+#     loss = criterion(outputs, labels)
+#     loss.backward()
+#     optimizer.step()
+
+#     # print statistics
+#     running_loss += loss.item()
+#     if i % 2000 == 1999:  # print every 2000 mini-batches
+#       print('[%d %5d] loss: %.3f' %
+#             (epoch + 1, i + 1, running_loss / 2000))
+#       running_loss = 0.0
+
+# print('Finish Training')
+
+# # ----- testing the network -----
+# print("> Testing the network...")
+# dataiter = iter(testloader)
+# images, labels = dataiter.next()
+
+# # print images
+# # imshow(torchvision.utils.make_grid(images))
+# print('GroundTruth: ', ' '.join('%5s' % classes[labels[j]] for j in range(4)))
+
+# outputs = net(images)
+
+# _, predicted = torch.max(outputs, 1)
+# print('Predicted: ', ' '.join('%5s' % classes[predicted[j]]
+#                               for j in range(4)))
+
+# correct = 0
+# total = 0
+# with torch.no_grad():
+#     for data in testloader:
+#         images, labels = data
+#         outputs = net(images)
+#         _, predicted = torch.max(outputs.data, 1)
+#         total += labels.size(0)
+#         correct += (predicted == labels).sum().item()
+
+# print('Accuracy of the network on the 10000 test images: %d %%' % (
+#     100 * correct / total))
+
+# class_correct = list(0. for i in range(10))
+# class_total = list(0. for i in range(10))
+# with torch.no_grad():
+#     for data in testloader:
+#         images, labels = data
+#         outputs = net(images)
+#         _, predicted = torch.max(outputs, 1)
+#         c = (predicted == labels).squeeze()
+#         for i in range(4):
+#             label = labels[i]
+#             class_correct[label] += c[i].item()
+#             class_total[label] += 1
+
+# for i in range(10):
+#     print('Accuracy of %5s : %2d %%' % (
+#         classes[i], 100 * class_correct[i] / class_total[i]))
 
 
 # # ===== Basic autograd example 1 =====
