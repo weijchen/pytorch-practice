@@ -14,12 +14,12 @@ batch_size = 100
 learning_rate = 0.001
 
 # MNIST dataset
-train_dataset = torchvision.datasets.MNIST(root='../../data/',
+train_dataset = torchvision.datasets.MNIST(root='../data/',
                                            train=True, 
                                            transform=transforms.ToTensor(),
                                            download=True)
 
-test_dataset = torchvision.datasets.MNIST(root='../../data/',
+test_dataset = torchvision.datasets.MNIST(root='../data/',
                                           train=False, 
                                           transform=transforms.ToTensor())
 
@@ -32,6 +32,7 @@ test_loader = torch.utils.data.DataLoader(dataset=test_dataset,
                                           batch_size=batch_size, 
                                           shuffle=False)
 
+print("> Building network...")
 # Convolutional neural network (two convolutional layers)
 class ConvNet(nn.Module):
   def __init__(self, num_classes):
@@ -40,13 +41,13 @@ class ConvNet(nn.Module):
       nn.Conv2d(1, 16, kernel_size=5, stride=1, padding=2),
       nn.BatchNorm2d(16),
       nn.ReLU(),
-      nn.MaxPooling2d(kernel_size=2, stride=2)
+      nn.MaxPool2d(kernel_size=2, stride=2)
       )
     self.layer2 = nn.Sequential(
       nn.Conv2d(16, 32, kernel_size=5, stride=1, padding=2),
       nn.BatchNorm2d(32),
       nn.ReLU(),
-      nn.MaxPooling2d(kernel_size=2, stride=2)
+      nn.MaxPool2d(kernel_size=2, stride=2)
       )
     self.fc = nn.Linear(7*7*32, num_classes)
 
@@ -63,6 +64,7 @@ model = ConvNet(num_classes).to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
+print("> Training network...")
 # Train the model
 total_step = len(train_loader)
 for epoch in range(num_epochs):
@@ -83,6 +85,7 @@ for epoch in range(num_epochs):
             print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}' 
                    .format(epoch+1, num_epochs, i+1, total_step, loss.item()))
 
+print("> Testing network...")
 # Test the model
 model.eval()  # eval mode (batchnorm uses moving mean/variance instead of mini-batch mean/variance)
 with torch.no_grad():
