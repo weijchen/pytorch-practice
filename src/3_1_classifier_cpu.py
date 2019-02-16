@@ -56,10 +56,10 @@ classes = ('plane', 'car', 'bird', 'cat',
 # ----- build the network -----
 print("> Building the network...")
 
-class Net(nn.Module):
+class Model(nn.Module):
 
   def __init__(self):
-    super(Net, self).__init__()
+    super(Model, self).__init__()
     self.conv1 = nn.Conv2d(3, 6, 5)
     self.pool = nn.MaxPool2d(2, 2)
     self.conv2 = nn.Conv2d(6, 16, 5)
@@ -76,7 +76,7 @@ class Net(nn.Module):
     x = self.fc3(x)
     return x
 
-model = Net()
+model = Model()
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)

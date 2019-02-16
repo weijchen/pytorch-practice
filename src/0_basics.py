@@ -39,25 +39,25 @@ print(x)                                      # result has the same size
 
 print(x.size())                               # get size
 
-# ----- Resize (.view()) -----
+# Resize (.view())
 x = torch.randn(4, 4)
 y = x.view(16)
 z = x.view(-1, 8)  # the size -1 is inferred from other dimensions
 print(x.size(), y.size(), z.size())
 
-# ----- Get the value (.item()) -----
+# Get the value (.item())
 x = torch.randn(1)
 print(x)
 print(x.item())
 
-# ===== NumPy Bridge =====
-# ----- torch -> numpy -----
+# ===== Tensor & NumPy Transformation =====
+# torch -> numpy
 a = torch.ones(5)
 print(a)
 b = a.numpy()
 print(b)
 
-# ----- numpy -> torch -----
+# numpy -> torch
 a = np.ones(5)
 b = torch.from_numpy(a)
 np.add(a, 1, out=a)
@@ -65,8 +65,6 @@ print(a)
 print(b)
 
 # ===== CUDA Tensors =====
-# let us run this cell only if CUDA is available
-# We will use ``torch.device`` objects to move tensors in and out of GPU
 if torch.cuda.is_available():
   device = torch.device("cuda")          # a CUDA device object
   y = torch.ones_like(x, device=device)  # directly create a tensor on GPU
@@ -97,7 +95,7 @@ print(a.requires_grad)
 b = (a * a).sum()
 print(b.grad_fn)
 
-# ===== Basic autograd example 2 =====
+# ===== AutoGrad example 2 =====
 # Create tensors
 x = torch.tensor(1., requires_grad=True)
 w = torch.tensor(2., requires_grad=True)
@@ -154,57 +152,96 @@ pred = linear(x)
 loss = criterion(pred, y)
 print('loss after 1 step optimization: ', loss.item())
 
-# # ===== Gradients =====
-# out.backward()
-# print(x.grad)
+# ===== Input pipeline =====
 
-# params = list(net.parameters())
-# print(len(params))
-# print(params[0].size())                      # conv1's weight
+transform = transforms.Compose(
+  [transforms.ToTensor(),
+   transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
-# input = torch.randn(1, 1, 32, 32)
-# out = net(input)
-# print(out)
+train_set = torchvision.datasets.CIFAR10(root='./db', train=True,
+                                        download=True, transform=transform)
+train_loader = torch.utils.data.DataLoader(dataset=train_set, batch_size=64,
+                                          shuffle=True, num_workers=2)
 
-# net.zero_grad()  # zeroes the gradient buffers of all parameters
-# out.backward(torch.randn(1, 10))
+test_set = torchvision.datasets.CIFAR10(root='./db', train=False,
+                                       download=True, transform=transform)
+test_loader = torch.utils.data.DataLoader(dataset=test_set, batch_size=64,
+                                         shuffle=False, num_workers=2)
 
-# # ----- Loss Function -----
-# output = net(input)
-# target = torch.randn(10)     # a dummy target, for example
-# target = target.view(1, -1)  # make it the same shape as output
-# criterion = nn.MSELoss()
+classes = ('plane', 'car', 'bird', 'cat',
+           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
-# loss = criterion(output, target)
-# print(loss)
-# print(loss.grad_fn)  # MSELoss
-# print(loss.grad_fn.next_functions[0][0])  # Linear
-# print(loss.grad_fn.next_functions[0][0].next_functions[0][0])  # ReLU
+# Fetch one data pair (read data from disk).
+image, label = train_dataset[0]
+print(image.size())
+print(label)
 
-# # ----- Backprop -----
-# net.zero_grad()  # zeroes the gradient buffers of all parameters
+# When iteration starts, queue and thread start to load data from files.
+data_iter = iter(train_loader)
 
-# print('conv1.bias.grad before backward')
-# print(net.conv1.bias.grad)
+# Mini-batch images and labels.
+images, labels = data_iter.next()
 
-# loss.backward()
+# Actual usage of the data loader is as below.
+for images, labels in train_loader:
+    # Training code should be written here.
+    pass
 
-# print('conv1.bias.grad after backward')
-# print(net.conv1.bias.grad)
+# ===== Input pipeline for custom dataset =====
+# You should build your custom dataset as below.
+class CustomDataset(torch.utils.data.Dataset):
+  def __init__(self):
+    # TODO
+    # 1. Initialize file paths or a list of file names. 
+    pass
+  def __getitem__(self, index):
+    # TODO
+    # 1. Read one data from file (e.g. using numpy.fromfile, PIL.Image.open).
+    # 2. Preprocess the data (e.g. torchvision.Transform).
+    # 3. Return a data pair (e.g. image and label).
+    pass
+  def __len__(self):
+    # You should change 0 to the total size of your dataset.
+    return 0 
 
-# # ===== Update the weights =====
-# # ----- Hand craft (SGD) -----
-# learning_rate = 0.01
-# for f in net.parameters():
-#   f.data.sub_(f.grad.data * learning_rate)
+custom_dataset = CustomDataset()
+train_loader = torch.utils.data.DataLoader(dataset=custom_dataset, batch_size=64, shuffle=True)
 
-# # ----- Call by built-in function -----
-# # create your optimizer
-# optimizer = optim.SGD(net.parameters(), lr=0.01)
+# ================================================================== #
+#                        6. Pretrained model                         #
+# ================================================================== #
 
-# # in your training loop
-# optimizer.zero_grad()
-# output = net(input)
-# loss = criterion(output, target)
-# loss.backward()
-# optimizer.step()     # dose the update
+# Download and load the pretrained ResNet-18.
+resnet = torchvision.models.resnet18(pretrained=True)
+
+# If you want to finetune only the top layer of the model, set as below.
+for param in resnet.parameters():
+    param.requires_grad = False
+
+# Replace the top layer for finetuning.
+resnet.fc = nn.Linear(resnet.fc.in_features, 100)  # 100 is an example.
+
+# Forward pass.
+images = torch.randn(64, 3, 224, 224)
+outputs = resnet(images)
+print(outputs.size())     # (64, 100)
+
+# ================================================================== #
+#                      7. Save and load the model                    #
+# ================================================================== #
+
+# Save and load the entire model.
+torch.save(resnet, 'model.ckpt')
+model = torch.load('model.ckpt')
+
+# Save and load only the model parameters (recommended).
+torch.save(resnet.state_dict(), 'params.ckpt')
+resnet.load_state_dict(torch.load('params.ckpt'))
+
+
+
+
+
+
+
+
