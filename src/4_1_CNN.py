@@ -13,6 +13,7 @@ num_classes = 10
 batch_size = 100
 learning_rate = 0.001
 
+print("> Fetching dataset...")
 # MNIST dataset
 train_dataset = torchvision.datasets.MNIST(root='../data/',
                                            train=True, 
@@ -55,7 +56,7 @@ class ConvNet(nn.Module):
     out = self.layer1(x)
     out = self.layer2(out)
     out = out.reshape(out.size(0), -1)
-    out = slef.fc(out)
+    out = self.fc(out)
     return out
 
 model = ConvNet(num_classes).to(device)
