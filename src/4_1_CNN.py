@@ -15,12 +15,12 @@ learning_rate = 0.001
 
 print("> Fetching dataset...")
 # MNIST dataset
-train_dataset = torchvision.datasets.MNIST(root='../data/',
+train_dataset = torchvision.datasets.MNIST(root='../db/',
                                            train=True, 
                                            transform=transforms.ToTensor(),
                                            download=True)
 
-test_dataset = torchvision.datasets.MNIST(root='../data/',
+test_dataset = torchvision.datasets.MNIST(root='../db/',
                                           train=False, 
                                           transform=transforms.ToTensor())
 
