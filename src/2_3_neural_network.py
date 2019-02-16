@@ -14,6 +14,7 @@ num_epochs = 5
 batch_size = 100
 learning_rate = 0.001
 
+print("> Loading Data...")
 # MNIST dataset 
 train_dataset = torchvision.datasets.MNIST(root='../data', 
                                            train=True, 
@@ -33,6 +34,7 @@ test_loader = torch.utils.data.DataLoader(dataset=test_dataset,
                                           batch_size=batch_size, 
                                           shuffle=False)
 
+print("> Building Model...")
 # Fully connected neural network with one hidden layer
 class NeuralNet(nn.Module):
   def __init__(self, input_size, hidden_size, num_classes):
@@ -51,8 +53,9 @@ model = NeuralNet(input_size, hidden_size, num_classes).to(device)
 
 # Loss and Optimizer
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.paramters(), lr=learning_rate)
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
+print("> Training the model...")
 # Train the model
 total_step = len(train_loader)
 for epoch in range(num_epochs):
@@ -74,6 +77,7 @@ for epoch in range(num_epochs):
       print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'
               .format(epoch+1, num_epochs, i+1, total_step, loss.item()))
 
+print("> Testing the model...")
 # Test the model
 # In test phase, we don't need to compute gradients (for memory efficiency)
 with torch.no_grad():
