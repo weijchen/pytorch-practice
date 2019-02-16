@@ -17,6 +17,7 @@ batch_size = 100
 num_epochs = 2
 learning_rate = 0.01
 
+print("> Fetching dataset...")
 # MNIST dataset
 train_dataset = torchvision.datasets.MNIST(root='../db/',
                                            train=True, 
@@ -36,7 +37,7 @@ test_loader = torch.utils.data.DataLoader(dataset=test_dataset,
                                           batch_size=batch_size, 
                                           shuffle=False)
 
-
+print("> Building model...")
 # Recurrent neural network (many-to-one)
 class RNN(nn.Module):
   def __init__(self, input_size, hidden_size, num_layers, num_classes):
@@ -64,6 +65,7 @@ model = RNN(input_size, hidden_size, num_layers, num_classes).to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
+print("> Training model...")
 # Train the model
 total_step = len(train_loader)
 for epoch in range(num_epochs):
@@ -84,6 +86,7 @@ for epoch in range(num_epochs):
       print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}' 
          .format(epoch+1, num_epochs, i+1, total_step, loss.item()))
 
+print("> Testing model...")
 # Test the model
 with torch.no_grad():
   correct = 0
