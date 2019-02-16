@@ -66,7 +66,7 @@ D = D.to(device)
 G = G.to(device)
 
 # Binary cross entropy loss and optimizer
-criterion = nn.BCEloss()
+criterion = nn.BCELoss()
 d_optimizer = torch.optim.Adam(D.parameters(), lr=0.0002)
 g_optimizer = torch.optim.Adam(G.parameters(), lr=0.0002)
 
